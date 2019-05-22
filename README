@@ -1,0 +1,49 @@
+This package gives MCFM-6.8 the ability to compute differential 
+distributions of the ttbar cross-section in the MSbar scheme.
+
+In order to provide this ability, this package modifies and adds
+a number of files. It is assumed that the user has a standard 
+installation of MCFM-6.8. For installation, please move the
+MSBAR.tar.gz file to the root directory of the MCFM-6.8 installation.
+The default for this is MCFM-6.8/. Extracting the pacakage here will
+add and overwrite the files as outlined below:
+
+* Changed Files
+- makefile
+- Bin/input.DAT
+- src/Need/mcfm_vegas.f 
+- src/Need/reader_input.f
+- src/Need/writeinput.f
+- src/Need/scaleset.f
+- src/User/bookplot.f
+- src/User/nplotter.f
+
+* Added Files
+- src/Inc/msbar.f
+- src/Parton/dfdist_lhapdf.f
+- src/Phase/dgen2m.f
+- src/Phase/gen2m_ms.f
+- src/Procdep/msbint.f
+- src/Top/dmqqb_QQb.f
+- src/User/nplotter_ttmsbar.f
+- src/Need/scaleset_mpt4.f
+
+After the package is installed, the user will either need to modify 
+the makefile to include thier specific library settings or simply run
+the Install script again. It should then be possible to compile the
+modifications by running make.
+
+Please note that the current version will only work with LHAPDF sets.
+
+Use:
+The user should set the following fields in the input.DAT file
+
+* nproc => 157 - compute ttbar cross section
+* part => 'tota' or 'msbr'
+---- 'tota' computes the total cross-section
+---- 'msbr' computes only the correction required to transform to the
+        msbar scheme.
+
+* msbr => .true. - turns on msbar calculation
+* msbar (mscase) => 'y4', 'pt4', or 'm34' - flag to tell MCFM which
+    distribution to compute.
