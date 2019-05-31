@@ -3,7 +3,7 @@
 # Replace this with the location of Cernlib on your system (if desired)
 CERNLIB     = 
 # Replace this with the location of LHAPDF on your system (if desired)
-LHAPDFLIB   = /usr1/scratch/mdowling/lib
+LHAPDFLIB   = /home/zenaiev/soft/LHAPDF-6.1.6/build/lib
 
 MCFMHOME        = $(PWD)
 SOURCEDIR       = $(MCFMHOME)/src

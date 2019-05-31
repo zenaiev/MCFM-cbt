@@ -128,7 +128,11 @@ c--- photon processes also need to know the dipole number
      & .or.   (case .eq. 'HVV_tb')) then 
          call nplotter_ZZlept(p,wt,wt2,switch)
       elseif ((case .eq. 'tt_tot') .and. (msbar .eqv. .true.)) then
-         call nplotter_ttmsbr(p,wt,wt2,switch)
+         call nplotter_ttmsbr(p,wt,wt2,switch,1)
+      elseif ((case .eq. 'bb_tot') .and. (msbar .eqv. .true.)) then
+         call nplotter_ttmsbr(p,wt,wt2,switch,2)
+      elseif ((case .eq. 'cc_tot') .and. (msbar .eqv. .true.)) then
+         call nplotter_ttmsbr(p,wt,wt2,switch,3)
       else
          call nplotter_auto(p,wt,wt2)
 c         call nplotter_generic(p,wt,wt2,switch)

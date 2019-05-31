@@ -38,8 +38,6 @@ c--- invariant mass of particles 3 and 4
      &   (case .eq. 'dm_gaj') .or.
      &   (case .eq. 'dmgamj') .or.
      &   (case .eq. 'qq_Hgg')) then
-!        mu0=(p(3,4)+p(4,4))**2-(p(3,1)+p(4,1))**2
-!     &     -(p(3,2)+p(4,2))**2-(p(3,3)+p(4,3))**2       
         mu0=(4.0*(p(4,4)**2-p(4,3)**2-p(4,2)**2-p(4,1)**2)
      &      +1.0*(p(4,2)**2+p(4,1)**2))
         mu0=dsqrt(dabs(mu0))
@@ -47,10 +45,6 @@ c--- invariant mass of particles 3 and 4
         write(6,*) 'dynamicscale m(34) not supported for this process.'
         stop
       endif
-!      print*,'p3 = ',p(3,1),p(3,2),p(3,3),p(3,4),' mu = ',mu0
-!      print*,'p4 = ',p(4,1),p(4,2),p(4,3),p(4,4),' mu = ',mu0
-!      print*,'m34 = ',dsqrt((p(3,4)+p(4,4))**2-(p(3,3)+p(4,3))**2-
-!     & (p(3,2)+p(4,2))**2-(p(3,1)+p(4,1))**2)
       
       return
       end

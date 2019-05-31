@@ -592,7 +592,8 @@ c--- this is an allowed combination
      &      .or. (case .eq. 'Z_2gam') .or. (case .eq. 'Zgajet')
      &      .or. (case .eq. 'W_2gam')) ) then
 c--- this is an allowed combination
-        elseif ( (part .eq. 'msbr') .and. (case .eq. 'tt_tot')) then
+        elseif ( (part .eq. 'msbr') .and. ((case .eq. 'tt_tot') .or. 
+     $ (case .eq. 'bb_tot') .or. (case .eq. 'cc_tot'))) then
         else 
           write(6,*) 'part=',part,' is not a valid option'
           write(6,*) 'for this process number.'

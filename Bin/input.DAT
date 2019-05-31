@@ -16,7 +16,7 @@
 157	 	[nproc]
 'tota'  	[part 'lord','real' or 'virt','tota' or 'msbr']
 .true.		[msbar scheme for tt_tot (nproc=157) only, must be .true. for part='msbr']
-'y4'		[distribution produced in msbar scheme 'pt4','mtt' or 'y4']
+'y4'		[distribution produced in msbar scheme 'pt4','m34', 'y4' or 'numeric' (the latter not well tested yet)]
 'test'		['runstring']
 8000d0		[sqrts in GeV]
 +1		[ih1 =1 for proton and -1 for antiproton]

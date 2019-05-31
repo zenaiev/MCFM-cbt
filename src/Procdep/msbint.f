@@ -68,6 +68,8 @@ c      COMMON/ranno/idum
       external qq_tchan_htq,qq_tchan_htq_mad,qq_tchan_htq_amp
       double precision masssave,dm,lord,dlord,deriv,l
       double precision lowint
+      double precision coef
+      logical dynamicscalesave
 
       if (first) then
          first=.false.
@@ -79,17 +81,30 @@ c      COMMON/ranno/idum
       msbint=0d0
       
       if (mscase .eq. 'numeric') then
+        W=sqrts**2
+        p(:,:)=0d0
+        nvec=npart+2
+        call gen2m(r,p,pswt,*999)
+        ! need scale to calculate alpha_s
+        ! also need to prevent varying mass in dynamic scale
+        if (dynamicscale) call scaleset(rscalestart,fscalestart,p)
+        dynamicscalesave=dynamicscale
+        dynamicscale=.false.
+        !scale=rscalestart
+        !facscale=fscalestart
         masssave=mass2
-        dm=0.001d0
-        lord=lowint(r,wgt)
+        dm=mass2*1.0d-4
+        l=4d0/3d0
+        !l=4d0/3d0+dlog(scale**2/mass2**2)
+        coef=-1.0d0*as/pi*l*masssave/dm
+        lord=lowint(r,coef*wgt)
         mass2=mass2+dm
-        dlord=lowint(r,wgt)
+        coef=as/pi*l*masssave/dm
+        dlord=lowint(r,coef*wgt)
         deriv=(dlord-lord)/dm
         mass2=masssave
-        l=4d0/3d0
-        !l=4d0/3d0+dlog(scale**2/mt**2)
         msbint=as/pi*l*mass2*deriv
-        write(*,*)'as,scale,mt,msbint = ',as,scale,mass2,msbint
+        dynamicscale=dynamicscalesave
         return
       endif
 
@@ -98,7 +113,8 @@ c--- ensure isolation code does not think this is fragmentation piece
       W=sqrts**2
       p(:,:)=0d0
 
-      if ( (case .eq. 'tt_tot') .and. (msbar)) then
+      if ( ((case .eq. 'tt_tot') .or. (case .eq. 'bb_tot') .or. 
+     $ (case .eq. 'cc_tot')) .and. (msbar)) then
          npart=2
          call gen2m_ms(r,p,pswt,*999)
          call dgen2m(r,dmp,dmpswt,dmpswtmtt,*999)
@@ -143,6 +159,7 @@ c--- bother calculating the matrix elements for it, instead bail out
 
       flux=fbGeV2/(2d0*xx(1)*xx(2)*W)
 cmd- for tt_tot in msbar scheme
+      mt=mass2
       dflux = -flux*8d0*mt*(1d0-r(3))/((W-4d0*mt**2)*r(3)+4d0*mt**2)
       dfluxmtt = -2d0*flux/dsqrt(4d0*mt**2+(W-4d0*mt**2)*r(3))
 
@@ -277,7 +294,8 @@ cmd-derivative of jacobian w.r.t. y4
 c--- loop over all PDF error sets, if necessary
       if (PDFerrors) then
         PDFwgt(currentPDF)=
-     .      as/pi*(4d0/3d0+dlog(scale**2/mt**2))*mt*
+!     .      as/pi*(4d0/3d0+dlog(scale**2/mt**2))*mass2*
+     .      as/pi*(4d0/3d0)*mass2*
      .      ((dflux*pswt*xmsq
      .    + flux*dmpswt*xmsq
      .    + flux*pswt*dxmsq)

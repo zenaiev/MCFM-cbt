@@ -1,4 +1,4 @@
-      subroutine nplotter_ttmsbr(p,wt,wt2,switch)
+      subroutine nplotter_ttmsbr(p,wt,wt2,switch,hq)
       implicit none
       include 'vegas_common.f'
       include 'bbproc.f'
@@ -20,7 +20,7 @@ cz Add single-top b fraction, Z. Sullivan 1/25/05
 
 cz //
 
-      integer n,switch,i5,i6,i7,nu,nplotmax
+      integer n,switch,i5,i6,i7,nu,nplotmax,hq
       character tag*4
       double precision
      & ETARAP
@@ -35,6 +35,7 @@ cz //
      & ,SCUT2
       integer jet(mxpart),jetstart,ibbar,iz,izj,iztmp,
      . inotb,ilight1,ilight2
+      integer iy
 cz //
 
       double precision wtbbar,wtnotb,wtlight1,wtlight2
@@ -53,6 +54,7 @@ cz //
       logical first,jetmerge
       logical jetevent
       character*2 ptet
+      character(len=1024) :: histname
       common/nplotmax/nplotmax
       common/nproc/nproc
       common/nqcdjets/nqcdjets,nqcdstart
@@ -85,29 +87,95 @@ c--- ensure we initialize all possible histograms
       m34=dsqrt((p(3,4)+p(4,4))**2-(p(3,1)+p(4,1))**2
      .         -(p(3,2)+p(4,2))**2-(p(3,3)+p(4,3))**2)
 
+      y3=yrap(3,p)
+      pt3=pt(3,p)        
       y4=yrap(4,p)
       pt4=pt(4,p)        
         
    99 continue
 
       n=nextnplot 
+c hq=1 ttbar, hq=2 bbbar, hq=3 ccbar      
       if ( mscase .eq. 'y4' ) then
-         call bookplot(n,tag,'y4',y4,wt,wt2,-4d0,4d0,0.2d0,'lin')
+         if(hq.eq.1) then
+          call bookplot(n,tag,'y4',y4,wt,wt2,-4d0,4d0,1.0d0,'lin')
+         elseif(hq.eq.2) then
+          call bookplot(n,tag,'y4',y4,wt,wt2,-8d0,8d0,1.0d0,'lin')
+         elseif(hq.eq.3) then
+          call bookplot(n,tag,'y4',y4,wt,wt2,-10d0,10d0,1.0d0,'lin')
+         endif
          n=n+1
       elseif ( mscase .eq. 'pt4' ) then
-         call bookplot(n,tag,ptet//'4',pt4,wt,wt2,25d0,50d0,0.5d0,'lin')
-         n=n+1
-         call bookplot(n,tag,ptet//'4',pt4,wt,wt2,0d0,150d0,5d0,'log')
-         n=n+1
-         call bookplot(n,tag,ptet//'4',pt4,wt,wt2,0d0,600d0,20d0,'log')
+         if(hq.eq.1) then
+          call bookplot(n,tag,ptet//'4',pt4,wt,wt2,0d0,600d0,50d0,'lin')
+         elseif(hq.eq.2) then
+          call bookplot(n,tag,ptet//'4',pt4,wt,wt2,0d0,30d0,2.0d0,'lin')
+         elseif(hq.eq.3) then
+          call bookplot(n,tag,ptet//'4',pt4,wt,wt2,0d0,12d0,0.5d0,'lin')
+         endif
          n=n+1
       elseif ( mscase .eq. 'm34' ) then
-         call bookplot(n,tag,'m34',m34,wt,wt2,0d0,200d0,5d0,'lin')
+         if(hq.eq.1) then
+          call bookplot(n,tag,'m34',m34,wt,wt2,0d0,1200d0,100d0,'lin')
+         elseif(hq.eq.2) then
+          call bookplot(n,tag,'m34',m34,wt,wt2,0d0,80d0,4.0d0,'lin')
+         elseif(hq.eq.3) then
+          call bookplot(n,tag,'m34',m34,wt,wt2,0d0,15d0,0.5d0,'lin')
+         endif
          n=n+1 
-         call bookplot(n,tag,'m34',m34,wt,wt2,0d0,500d0,10d0,'log')
-         n=n+1
       elseif ( mscase .eq. 'numeric' ) then
-         stop
+         if(hq.eq.1) then
+          call bookplot(n,tag,'y4',y4,wt,wt2,-4d0,4d0,1.0d0,'lin')
+          n=n+1 
+          call bookplot(n,tag,ptet//'4',pt4,wt,wt2,0d0,600d0,50d0,'lin')
+          n=n+1 
+          call bookplot(n,tag,'m34',m34,wt,wt2,0d0,1200d0,100d0,'lin')
+          n=n+1 
+          ! double-differential pT-y
+          do iy=1,6
+            if((tag.eq.'book') .or. 
+     . (y3.ge.((iy-1)*0.5d0).and.y3.le.(iy*0.5d0)))then
+              write (histname, "(A7,I1)") "pTybin", iy
+              call bookplot(n,tag,trim(histname),pt3,wt,wt2,
+     .                      0.0d0,600.0d0,100.0d0,'lin')
+            endif
+            n=n+1
+          enddo
+         elseif(hq.eq.2) then
+          call bookplot(n,tag,'y4',y4,wt,wt2,-8d0,8d0,1.0d0,'lin')
+          n=n+1 
+          call bookplot(n,tag,ptet//'4',pt4,wt,wt2,0d0,30d0,2.0d0,'lin')
+          n=n+1 
+          call bookplot(n,tag,'m34',m34,wt,wt2,0d0,80d0,4.0d0,'lin')
+          n=n+1 
+          ! double-differential pT-y
+          do iy=1,5
+            if((tag.eq.'book') .or. 
+     . ((y3-2.0d0).ge.((iy-1)*0.5d0).and.(y3-2.0d0).le.(iy*0.5d0)))then
+              write (histname, "(A7,I1)") "pTybin", iy
+              call bookplot(n,tag,trim(histname),pt3,wt,wt2,
+     .                      0.0d0,20.0d0,1.0d0,'lin')
+            endif
+            n=n+1
+          enddo
+         elseif(hq.eq.3) then
+          call bookplot(n,tag,'y4',y4,wt,wt2,-10d0,10d0,1.0d0,'lin')
+          n=n+1 
+          call bookplot(n,tag,ptet//'4',pt4,wt,wt2,0d0,12d0,0.5d0,'lin')
+          n=n+1 
+          call bookplot(n,tag,'m34',m34,wt,wt2,0d0,15d0,0.5d0,'lin')
+          n=n+1 
+          ! double-differential pT-y
+          do iy=1,5
+            if((tag.eq.'book') .or. 
+     . ((y3-2.0d0).ge.((iy-1)*0.5d0).and.(y3-2.0d0).le.(iy*0.5d0)))then
+              write (histname, "(A7,I1)") "pTybin", iy
+              call bookplot(n,tag,trim(histname),pt3,wt,wt2,
+     .                      0.0d0,8.0d0,1.0d0,'lin')
+            endif
+            n=n+1
+          enddo
+         endif
       else
         write(6,*) 'mscase not recognized'
         write(6,*) '   mscase = ',mscase

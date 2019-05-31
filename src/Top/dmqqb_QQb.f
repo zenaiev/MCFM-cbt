@@ -31,8 +31,9 @@
       data first/.true./
       save first
 
-      if (case .ne. 'tt_tot') then
-        write(6,*) 'Only implemented for ttbar cross section'
+      if (case .ne. 'tt_tot' .and. case .ne. 'bb_tot' .and. 
+     $    case .ne. 'cc_tot') then
+        write(6,*) 'Only implemented for tt(bb,cc)bar cross section'
         call exit(-1)
       endif
 
