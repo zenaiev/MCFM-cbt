@@ -15,7 +15,7 @@
 [General options to specify the process and execution]
 157	 	[nproc]
 'tota'  	[part 'lord','real' or 'virt','tota' or 'msbr']
-.true.		[msbar scheme for tt_tot (nproc=157) only, must be .true. for part='msbr']
+.true.		[msbar scheme for nproc=157,158,159 only, must be .true. for part='msbr']
 'y4'		[distribution produced in msbar scheme 'pt4','m34', 'y4' or 'numeric' (the latter not well tested yet)]
 'test'		['runstring']
 8000d0		[sqrts in GeV]
