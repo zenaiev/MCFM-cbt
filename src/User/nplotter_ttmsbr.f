@@ -120,7 +120,8 @@ c hq=1 ttbar, hq=2 bbbar, hq=3 ccbar
          elseif(hq.eq.2) then
           call bookplot(n,tag,'m34',m34,wt,wt2,0d0,80d0,4.0d0,'lin')
          elseif(hq.eq.3) then
-          call bookplot(n,tag,'m34',m34,wt,wt2,0d0,15d0,0.5d0,'lin')
+          !call bookplot(n,tag,'m34',m34,wt,wt2,0d0,15d0,0.5d0,'lin')
+          call bookplot(n,tag,'m34',m34,wt,wt2,0d0,40d0,1.0d0,'lin')
          endif
          n=n+1 
       elseif ( mscase .eq. 'numeric' ) then
