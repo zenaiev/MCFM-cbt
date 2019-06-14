@@ -42,7 +42,7 @@
 1.5d0		[charm mass]
 
 [Pdf selection]
-'huivam'		[pdlabel]
+'DUMMY'		[pdlabel]
 4		[NGROUP, see PDFLIB]
 46		[NSET - see PDFLIB]
 ABMP16_3_nlo.LHgrid	[LHAPDF group]
