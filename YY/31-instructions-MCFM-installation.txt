@@ -1,0 +1,33 @@
+These are instructions how to install MCFM with "advanced" addon '-cbt' for 
+HQ hadroproduction with running masses (+ multi-differntial cross sections under development)
+
+You need git installed (I store MCFM code modifications on github.com).
+Then you need to download standard MCFM version 6.8 from their webpage.
+Then run:
+tar xvzpf ~/sven-msbarm/MCFM-6.8.tar.gz
+cd MCFM-6.8
+git clone https://github.com/zenaiev/MCFM-cbt
+mv MCFM-cbt/.git ./
+git reset --hard HEAD
+
+modify Install, insert there path to LHAPDF library directory, to determine it run
+lhapdf-config --libdir
+./Install
+(actually I also need to change set -> export and remove spaces around =)
+
+make -j5
+
+Then for me it reported error with missing ff library. I had to do:
+cd QCDLoop/ff/
+make
+cd ../../
+make
+
+If no error is reported:
+cd Bin
+./mcfm
+
+It should take < 1 minute and print among other lines this one:
+# "Value of final tota integral is   250379.7298 +/-   875.7419 fb"
+# updated on 14.06.2019 (tuned for charm)
+"Value of final tota integral is  5566511.0691 +/- 82078.5139 nb"

@@ -1,0 +1,51 @@
+
+***************** part 3.2 *************************
+
+Update the repository (I've just pushed there my latest developments):
+git pull
+./Install
+make -j5
+
+Try to run:
+cd Bin
+./mcfm
+
+It should again take < 1 minute and print among other lines this one:
+"Value of final tota integral is   250379.7298 +/-   875.7419 fb"
+
+Now you are ready to change settings and look how the results are changed. 
+The input settings are provided in input.DAT. You can read about the settings 
+in the MCFM manual:
+https://mcfm.fnal.gov/mcfm.pdf
+Here I explain only the settings which are needed in the addon for heavy-quark 
+calculation with the MSbar masses (not part of standard MCFM)
+157	 	[nproc]
+  -> choose 157, 158 or 159 for ttbar, bbbar or ccbar, respectively
+'tota'  	[part 'lord','real' or 'virt','tota' or 'msbr']
+  -> choose 'msbr' for the MSbar correction only (other settings are standard MCFM)
+.true.		[msbar scheme for nproc=157,158,159 only, must be .true. for part='msbr']
+  -> perhaps self explanatory
+'y4'		[distribution produced in msbar scheme 'pt4','m34', 'y4' or 'numeric' (the latter not well tested yet)]
+  -> 'pt4','m34', 'y4' are transverse momentum, rapidity or invariant mass 
+of particle 3 (heavy quark) or 4 (heavy antiquark) to be calculated. Look at src/User/nplotter_ttbar.f to see which 
+histograms are implemented for each case. Also look at src/Phase/dgen2m.f and src/Phase/gen2m_ms.f to see the transition 
+to the MSbar scheme is implemneted for the different distributions. These are analytical jacobians. See paper 
+https://inspirehep.net/record/1235729 how the transition from the pole to MSbar scheme is done. I've started to 
+implement a fully numerical calculation ('numeric') which could work for any distribution (inclusidng double- or 
+triple-differential), but I did not test it yet (there were some inconsistencies). 
+
+Try to change nproc and distribution and see at the output histograms how do they change. The output histograms are 
+in tt_tot_tota_CT10nlo_163_163_test.dat. Try to implement a new hisgtogram with different bin boundaries. 
+
+You can control the precision of MCMF calculation by changing itmx1, ncall1, itmx2, ncall2. Once you increase the numbers, 
+it is a good idea to keep itmx2 ~ 10 * itmx1 and ncall2 ~ 10 * ncall1 (because itmx1, ncall1 are used at the warm-up 
+stage of the calculation to determine some initial grids, while itmx2, ncall2 are used for actual calculation). MCFM produces 
+some uncertainties for the calculated cross sections, both total and differential, but they are not always reliable:
+look at chi^2 values reported in the console at each iteration, they should be about 1.
+
+Try to choose some distribution and calculate it using xfitter and MCFM, and compare how good the results agree 
+(reaching 1% agreement is feasible). Try to do this exercise for different heavy quarks and different mass schemes.
+In MCFM, with the MSbar scheme use 'pt4','m34', 'y4', i.e. well tested options with analytical jacobians.
+Once you achieve good agreement, try to test the 'numeric' option with the MSbar mass scheme and see whether it gives
+consistent results as well (I doubt though, perhaps one still needs to fix something for this option).
+ 

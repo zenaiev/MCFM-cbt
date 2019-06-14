@@ -1,0 +1,59 @@
+Create a new directory, e.g. 'xfitter', and go to it:
+mkdir xfitter
+cd xfitter
+
+Get this installation script:
+https://gitlab.cern.ch/fitters/xfitter/blob/master/tools/install-xfitter
+Download it as a plain file (-> open raw -> save as, or copy and insert into a manully 
+created file with the same name), store in the new directory, make executable with:
+chmod +x install-xfitter
+and run:
+./install-xfitter PionCeres
+
+It will take some time (~15 min) to install all dependencies. If it reports error with 
+the yaml library, do what it suggests, i.e. install it using a dedicate installation script.
+After the error reported, you need to source a newly created setup file before installing yaml 
+(it sets the required gcc compiler):
+source setup.sh
+./xfitter/tools/install-yaml
+(will take ~3 min)
+Then it will suggest to source a newly created setup file, do it:
+source setup-yaml.sh
+
+Now continue with xfitter installation: go to xfitter directory:
+cd xfitter-master
+Proceed with configuring it: this was the step where the error with yaml was reported previously, 
+in order to get the exact configure command just look at config.log and find there the command:
+Now compile and install it:
+./configure --enable-applgrid --enable-lhapdf --enable-apfel --enable-mela --enable-apfelgrid
+make -j9 install
+(will take ~5 min)
+Try to run:
+./bin/xfitter
+If everything is fine, in ~60s you should see the lines:
+...
+After minimisation    1363.45  1131     1.206
+
+Dataset    1    442.54( +7.91)   377  HERA1+2 NCep 920                                
+Dataset    2     66.14( +0.02)    70  HERA1+2 NCep 820                                
+Dataset    3    219.15( +1.04)   254  HERA1+2 NCep 575                                
+Dataset    4    217.72( -0.90)   204  HERA1+2 NCep 460                                
+Dataset    5    219.36( -0.23)   159  HERA1+2 NCem                                    
+Dataset    6     44.91( +0.37)    39  HERA1+2 CCep                                    
+Dataset    7     56.00( -2.14)    42  HERA1+2 CCem                                    
+...
+End of Message Summary
+Then everything is fine (this was not a PDF fit, but just one iteration with chi2 calculation).
+
+If everything works well, try to logout, then login, and run it again. After each login, you 
+need to source two files (one for xfitter and all other dependencies and another one for yaml):
+source setup.sh
+source setup_yaml.sh
+cd xfitter-master
+./bin/xfitter
+Also try if you can recompile the code after a new login:
+make -j9 install
+
+Further links:
+https://wiki-zeuthen.desy.de/xFitter/ [xFitter webpage]
+https://gitlab.cern.ch/fitters/xfitter [repository with xFitter source code]
