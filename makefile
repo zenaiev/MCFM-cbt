@@ -1,9 +1,17 @@
 # Makefile routine.
 
+# mcfm-bridge
+LDFLAGS = $(shell mcfmbridge-config --ldflags)
+
 # Replace this with the location of Cernlib on your system (if desired)
 CERNLIB     = 
 # Replace this with the location of LHAPDF on your system (if desired)
-LHAPDFLIB   = /home/zenaiev/soft/LHAPDF-6.1.6/build/lib
+LHAPDFLIB   = $(shell lhapdf-config --ldflags)
+PDFDIR      = $(shell lhapdf-config --pdfsets-path)
+
+FASTJETINC  = $(shell fastjet-config --cxxflags)
+FASTJETLIB  = $(shell fastjet-config --libs)
+
 
 MCFMHOME        = $(PWD)
 SOURCEDIR       = $(MCFMHOME)/src
@@ -46,14 +54,16 @@ F90FLAGS = -fno-automatic -fno-f2c  -g -I$(INCPATH) -Iobj -Jobj
 
 # If using FROOT package for ROOT ntuples, first specify C++ compiler:
 CXX = g++
-CXXFLAGS=$(CXXFLAGS0) -Wall $(DROOT) 
+CXXFLAGS=$(CXXFLAGS0) $(FASTJETINC) -Wall $(DROOT) 
 # ROOTLIBS and ROOTINCLUDE are locations of ROOT libraries and header files.
 # Find the ROOT directory automatically by running root-config 
 # or specify it manually by editing the variable ROOTDIR 
-ROOTDIR= `root-config --prefix`
+# NB: use the correct helpers for the config, so that the required 
+#     link options etc are also included as well  
+ROOTDIR= $(shell root-config --prefix)
 DMYROOT= -DMYROOT
-ROOTLIBS     := `root-config --prefix=$(ROOTDIR)  --libs`
-ROOTINCLUDE     := -I `root-config --prefix=$(ROOTDIR) --incdir`
+ROOTLIBS     := $(shell root-config --libs)
+ROOTINCLUDE     := $(shell root-config --cflags)
 
 
 DIRS	=	$(MCFMHOME):\
@@ -1257,7 +1267,7 @@ getggHWWamps.o \
 getggWWamps.o \
 gen4vv.o \
 gen4handcvv.o \
-gen4hvv.o
+gen4hvv.o 
 
 WFILES = \
 qqb_w.o \
@@ -1823,11 +1833,12 @@ qqb_zbjet_z.o
 # ifeq ($(GRID),APPLGRID)
 # USERFILES += mcfm_grid.o gridwrap.o
 # else
-USERFILES += gridwrap.o
+USERFILES += gridwrap.o 
+# getmxpart.o
 # endif
 
 LIBDIR=.
-LIBFLAGS=-lqcdloop -lff -lov -lpv -lsmallG -lsmallY -lsmallP -lsmallF
+LIBFLAGS=-lqcdloop -lff -lov -lpv -lsmallG -lsmallY -lsmallP -lsmallF $(FASTJETLIB)
 
 # the files that do not go into the library                                                      
 MAIN = mcfm.o
@@ -1889,8 +1900,8 @@ ifeq ($(PDFROUTINES),LHAPDF)
    fdist_lhapdf.o \
    dfdist_lhapdf.o \
    pdfwrap_lhapdf.o
-   LIBDIR += -L$(LHAPDFLIB)
-   LIBFLAGS += -lLHAPDF
+   LIBDIR += $(LHAPDFLIB)
+#   LIBFLAGS += -lLHAPDF
    PDFMSG='   ----> MCFM compiled with LHAPDF routines <----'
 else
 ifeq ($(PDFROUTINES),NATIVE)
@@ -1951,7 +1962,7 @@ OURCODE = $(LIBFILES) $(NEEDFILES)  $(PROCDEPFILES) $(SPINORFILES) \
 	  $(W2JETVIRTFILES) $(WHBBARFILES) $(WGAMFILES) $(ZGAMFILES) \
           $(WWFILES) $(WZFILES) $(ZFILES) $(ZHBBARFILES) \
           $(ZZFILES) $(ZGFILES) $(W1JETFILES) $(Z2JETFILES) \
-	    $(Z1JETFILES) $(HWWFILES) $(HZZFILES) $(VVFILES) \
+	  $(Z1JETFILES) $(HWWFILES) $(HZZFILES) $(VVFILES) \
           $(TAUTAUFILES) $(HTTBARFILES) \
           $(BBHIGGSFILES) $(WBBFILES) $(ZBBFILES) \
           $(QQHFILES) $(QQHWWFILES) $(QQHZZFILES) $(GGHFILES) $(GGHGFILES) \
@@ -1980,41 +1991,69 @@ MCFMLIB = $(OURCODE) $(OTHER)
 
 # CERNLIB libraries for PDFLIB: -lpdflib804 -lmathlib -lpacklib 
 
+install : obj libs dat documentation pdfsets mcfm
+
 mcfm: $(ALLMCFM)
 	$(FC) $(FFLAGS) -L$(LIBDIR) -L$(QLDIR) -L$(FFDIR) -L$(PVDIR) -L$(RECURDIR) -L$(OVDIR) -o $@ \
-	$(patsubst %,obj/%,$(ALLMCFM)) $(LIBFLAGS) 
+	$(patsubst %,obj/%,$(ALLMCFM)) $(LIBFLAGS) $(LDFLAGS) $(LDFLAGS) -L$(LIBDIR) 
 	mv mcfm Bin/
 	@echo $(PDFMSG)
 	@echo $(NTUPMSG)
 
 mcfmalt: mcfmlib $(NONLIB)
 	$(FC) $(FFLAGS) -L$(LIBDIR) -L$(QLDIR) -L$(FFDIR) -L$(PVDIR) -L$(RECURDIR) -L$(OVDIR) -o $@ \
-	$(patsubst %,obj/%,$(NONLIB)) -lmcfm $(LIBFLAGS) 
+	$(patsubst %,obj/%,$(NONLIB)) -lmcfm $(LIBFLAGS) $(LDFLAGS)  $(LDFLAGS) -L$(LIBDIR) 
 	mv mcfmalt Bin/mcfm
 	@echo $(PDFMSG)
 	@echo $(NTUPMSG)
 
 mcfmcc: mcfmlib $(MAIN) cxxusercode.o
 	$(FC) $(FFLAGS) -L$(LIBDIR) -L$(QLDIR) -L$(FFDIR) -L$(PVDIR) -L$(RECURDIR) -L$(OVDIR) -o $@ \
-	$(patsubst %,obj/%,$(MAIN)) obj/cxxusercode.o -lmcfm $(LIBFLAGS) \
-	`fastjet-config` --libs -lstdc++
+	$(patsubst %,obj/%,$(MAIN)) obj/cxxusercode.o -lmcfm $(LIBFLAGS) $(LDFLAGS) -L$(LIBDIR) \
+	 --libs -lstdc++
 	mv mcfmcc Bin/
 	@echo $(PDFMSG)
 	@echo $(NTUPMSG)
 
 mcfmlib: $(MCFMLIB)
+	rm libmcfm.a
 	ar -r libmcfm.a $(patsubst %,obj/%,$(MCFMLIB))
 	ranlib libmcfm.a
+
+
+
+
+# for som reason, this doesn't work ...
+# libs : 
+# 	make -C  QCDLoop 
+# 	make -C $(TENSORREDDIR)
+
+# so explicitly cd to the directories instead ...
+libs : 
+	cd QCDLoop ; make 
+	cd $(TENSORREDDIR) ; make
+	cd $(MCFMHOME)
+
+dat : Bin/fferr.dat  Bin/ffperm5.dat  Bin/ffwarn.dat  
 
 # for FROOT package
 %.co: %.c
 	$(CXX) -c $(CXXFLAGS) $(DMYROOT) $(ROOTINCLUDE) -o obj/$@ $<
+
 # TM Include F90 files too
 %.o: %.f90
 	$(F90) $(F90FLAGS) -c -o obj/$@ $<
 
 %.o: %.cc
-	$(CXX) -c $(CXXFLAGS) `fastjet-config --cxxflags` -o obj/$@ $<
+	$(CXX) -c $(CXXFLAGS) -o obj/$@ $<
+
+%.o: %.cxx
+	$(CXX) -c $(CXXFLAGS) -o obj/$@ $<
+
+
+Bin/%.dat : QCDLoop/ff/%.dat
+	cp  $< $@
+
 
 # for c++ targets
 #%.o: %.cxx
@@ -2022,8 +2061,10 @@ mcfmlib: $(MCFMLIB)
 # -----------------------------------------------------------------------------
 # Specify other options.
 
+
+# hmmm, these directories don;t exist on my system ....
 FTNCHEKPATH = /home/ellis/Fortran/Ftnchek/ftnchek-3.1.2
-FORCHKPATH = /home/ellis/bin/
+FORCHKPATH  = /home/ellis/bin/
 
 # Specify the dependencies of the .o files and the rules to make them.
 
@@ -2055,6 +2096,30 @@ clean:
 	- rm -f *.o obj/*.o obj/*.mod Bin/mcfm QCDLoop/*/*.o *.s *.prj *~ core
 
 # -----------------------------------------------------------------------------
+
+.PHONY : pdfsets documentation
+
+pdfsets : Bin/PDFsets  
+Bin/PDFsets : 
+ifneq (x$(PDFDIR),x)
+	cd Bin ; ln -sf $(PDFDIR) .
+endif
+
+# again, make -C doesn;t seem to work here - again, it builds
+# every time ...
+# documentation : Doc/mcfm.pdf
+# Doc/mcfm.pdf  : Doc/mcfm.tex 
+# 	make -C Doc mcfm.pdf 
+
+# so explicitly change directory and issue the make 
+documentation : Doc/mcfm.pdf
+Doc/mcfm.pdf  : Doc/mcfm.tex 
+	cd Doc ; make 
+	cd $(MCFMHOME)
+
+obj : 
+	mkdir -p obj 
+	
 
 # DO NOT DELETE
 

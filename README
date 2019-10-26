@@ -1,49 +1,28 @@
-This package gives MCFM-6.8 the ability to compute differential 
-distributions of the ttbar cross-section in the MSbar scheme.
+Installation patch file for mcfm 6.8
+-------------------------------------
 
-In order to provide this ability, this package modifies and adds
-a number of files. It is assumed that the user has a standard 
-installation of MCFM-6.8. For installation, please move the
-MSBAR.tar.gz file to the root directory of the MCFM-6.8 installation.
-The default for this is MCFM-6.8/. Extracting the pacakage here will
-add and overwrite the files as outlined below:
+untar the mcfm-patch-X.Y.Z.tgz file ( where X.Y.Z is the relevant version)
+int the base directory of mcfm
 
-* Changed Files
-- makefile
-- Bin/input.DAT
-- src/Need/mcfm_vegas.f 
-- src/Need/reader_input.f
-- src/Need/writeinput.f
-- src/Need/scaleset.f
-- src/User/bookplot.f
-- src/User/nplotter.f
+then simply run 
 
-* Added Files
-- src/Inc/msbar.f
-- src/Parton/dfdist_lhapdf.f
-- src/Phase/dgen2m.f
-- src/Phase/gen2m_ms.f
-- src/Procdep/msbint.f
-- src/Top/dmqqb_QQb.f
-- src/User/nplotter_ttmsbar.f
-- src/Need/scaleset_mpt4.f
+ ./cleanup.sh
+ make
 
-After the package is installed, the user will either need to modify 
-the makefile to include thier specific library settings or simply run
-the Install script again. It should then be possible to compile the
-modifications by running make.
+The mcfm-patch file contains ... 
 
-Please note that the current version will only work with LHAPDF sets.
+TensorReduction/makefile
+TensorReduction/ov/makefile
+cleanup.sh
+makefile
+src/Procdep/realint.f
+src/Procdep/virtint.f
+src/User/gridwrap.cxx
+README
 
-Use:
-The user should set the following fields in the input.DAT file
+NB: this version should be used for mcfm 6.8. 
+    It will not work with mcfm 6.7, since the mcfm code structure itself
+    has changed slightly
 
-* nproc => 157 - compute ttbar cross section
-* part => 'tota' or 'msbr'
----- 'tota' computes the total cross-section
----- 'msbr' computes only the correction required to transform to the
-        msbar scheme.
-
-* msbr => .true. - turns on msbar calculation
-* msbar (mscase) => 'y4', 'pt4', or 'm34' - flag to tell MCFM which
-    distribution to compute.
+ 
+ 

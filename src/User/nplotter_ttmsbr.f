@@ -33,6 +33,7 @@ cz //
      & ,MTRANS
      & ,SCUT1
      & ,SCUT2
+     & ,yraptwo
       integer jet(mxpart),jetstart,ibbar,iz,izj,iztmp,
      . inotb,ilight1,ilight2
       integer iy
@@ -90,7 +91,16 @@ c--- ensure we initialize all possible histograms
       y3=yrap(3,p)
       pt3=pt(3,p)        
       y4=yrap(4,p)
-      pt4=pt(4,p)        
+      pt4=pt(4,p)
+      !do iy=1,4
+      !  p34(1,iy)=p(3,iy)+p(4,iy)
+      !enddo
+      !y34=yrap(1,p34)
+      y34=yraptwo(3,4,p)
+      !print*,y34,m34
+      !print*,p34
+      !print*,p(3,1),p(3,2),p(3,3),p(3,4)
+      !print*,p(4,1),p(4,2),p(4,3),p(4,4)
         
    99 continue
 
@@ -167,12 +177,22 @@ c hq=1 ttbar, hq=2 bbbar, hq=3 ccbar
           call bookplot(n,tag,'m34',m34,wt,wt2,0d0,15d0,0.5d0,'lin')
           n=n+1 
           ! double-differential pT-y
-          do iy=1,5
+          do iy=1,10
             if((tag.eq.'book') .or. 
-     . ((y3-2.0d0).ge.((iy-1)*0.5d0).and.(y3-2.0d0).le.(iy*0.5d0)))then
-              write (histname, "(A7,I1)") "pTybin", iy
+     . (y3.ge.((iy-1)*0.5d0).and.y3.le.(iy*0.5d0)))then
+              write (histname, "(A7,I0.2)") "pTybin", iy
               call bookplot(n,tag,trim(histname),pt3,wt,wt2,
-     .                      0.0d0,8.0d0,1.0d0,'lin')
+     .                      0.0d0,15.0d0,1.0d0,'lin')
+            endif
+            n=n+1
+          enddo
+          ! double-differential M-y
+          do iy=1,10
+            if((tag.eq.'book') .or. 
+     . (y34.ge.((iy-1)*0.5d0).and.y34.le.(iy*0.5d0)))then
+              write (histname, "(A6,I0.2)") "MYbin", iy
+              call bookplot(n,tag,trim(histname),m34,wt,wt2,
+     .                      0.0d0,30.0d0,2.0d0,'lin')
             endif
             n=n+1
           enddo
